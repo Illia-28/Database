@@ -63,22 +63,6 @@ def show_mas(lines):
         i = i + 1
 
 
-def mas_pk(connection):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            f"""SELECT a.attname FROM   pg_index i JOIN   pg_attribute a ON a.attrelid = i.indrelid  AND a.attnum = ANY(i.indkey) AND    i.indisprimary;"""
-            # https://wiki.postgresql.org/wiki/Retrieve_primary_key_columns
-        )
-        full_fetch = cursor.fetchall()
-        i = 0
-        pk = []
-        for record in full_fetch:
-            s: str = "".join(c for c in record if c.isalnum())  # залишаються літери та числа
-            pk.insert(i, s)
-            i = i + 1
-    return pk
-
-
 def fkey(connection, table_name, headline):
     with connection.cursor() as cursor:
         cursor.execute(

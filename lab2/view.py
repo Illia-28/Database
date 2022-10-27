@@ -45,7 +45,7 @@ def MainMenu():
             break
         os.system('cls||clear')
     print(' ' * position + "Goodbye!!")
-    time.sleep(10)
+    time.sleep(1)
 
 
 # show one table
