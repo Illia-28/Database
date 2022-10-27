@@ -1,9 +1,8 @@
 import psycopg2
-from config import host, user, password, db_name
 
 
 def conect():
-    connection = psycopg2.connect(host=host, user=user, password=password, database=db_name)
+    connection = psycopg2.connect(user="postgres", password="qwerty", host="localhost", port="5432", database="postgres")
     print("PostgreSQL connect")
     return connection
 
