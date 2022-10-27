@@ -1,6 +1,7 @@
 import shutil
 import time
 
+
 def table_headlines(connection, table_name):
     with connection.cursor() as cursor:
         cursor.execute(
@@ -138,7 +139,8 @@ def find_value(connection, headline, value, skip_table):
                     else:
                         return 1
 
-def data_type(connection,table_name, headline):
+
+def data_type(connection, table_name, headline):
     with connection.cursor() as cursor:
         cursor.execute(
             f"""SELECT "data_type" FROM information_schema.columns WHERE  table_schema='public' and "table_name" = '{table_name}' and "column_name" ='{headline}';"""
@@ -152,8 +154,8 @@ def data_type(connection,table_name, headline):
             i = i + 1
         return full_fetch[0]
 
-def select1(Name, connection):
 
+def select1(Name, connection):
     from prettytable import PrettyTable
     mytable = PrettyTable()
     mytable.field_names = ["CustomerName", "OrderID", "OrderDate", "ShipperName", "ProductName", "Quantity"]
@@ -177,8 +179,8 @@ def select1(Name, connection):
     print()
     print('Time of request = {} ms'.format(end))
 
-def select2(Name, connection):
 
+def select2(Name, connection):
     from prettytable import PrettyTable
     mytable = PrettyTable()
     mytable.field_names = ["OrderID", "ShipperName", "ProductName", "Quantity"]
@@ -203,10 +205,9 @@ def select2(Name, connection):
 
 
 def select3(Number, connection):
-
     from prettytable import PrettyTable
     mytable = PrettyTable()
-    mytable.field_names = [ "OrderID",  "Cost of order"]
+    mytable.field_names = ["OrderID", "Cost of order"]
     beg = int(time.time() * 1000)
 
     with connection.cursor() as cursor:
@@ -225,6 +226,57 @@ def select3(Number, connection):
     print(mytable)
     print()
     print('Time of request = {} ms'.format(end))
+
+
+def insert(headers_selected_table, con, title, num, values):
+    columns = ' "' + str(headers_selected_table[0]) + '" '
+    for i in range(1, len(headers_selected_table)):
+        columns = str(columns) + ' , "' + str(headers_selected_table[i]) + '" '
+    data = " '" + str(values[0]) + "' "
+    for i in range(1, len(values)):
+        data = str(data) + " , '" + str(values[i]) + "' "
+    with con.cursor() as cursor:
+        cursor.execute(
+            f"""INSERT INTO "{title[num - 1]}" ({columns} ) VALUES ({data});"""
+        )
+    print(title[num - 1])
+    print(f""" SQL query: INSERT INTO "{title[num - 1]}" ({columns} ) VALUES ({data});""")
+    print("Inserted successfully!!")
+
+
+def delete(con, title, num, headers_selected_table, num_id):
+    with con.cursor() as cursor:
+        cursor.execute(
+            f"""DELETE FROM "{title[num - 1]}" WHERE "{headers_selected_table[0]}" = '{num_id}';"""
+        )
+        print(title[num - 1])
+        print(f""" SQL query: DELETE FROM {title[num - 1]} WHERE "{headers_selected_table[0]}" = '{num_id}';""")
+        print(" Deleted successfully!!")
+
+
+def update(con, title, num, headers_selected_table, num_item, num_id, value):
+    with con.cursor() as cursor:
+        cursor.execute(
+            f""" UPDATE "{title[num - 1]}" SET "{headers_selected_table[num_item]}" = '{value}'
+                WHERE "{headers_selected_table[0]}" = '{num_id}';"""
+        )
+    print(title[num - 1])
+    print(
+        f""" SQL query: UPDATE "{title[num - 1]}" SET "{headers_selected_table[num_item]}" = '{value}' 
+            WHERE "{headers_selected_table[0]}" = '{num_id}';""")
+    print(" Data updated successfully!!")
+
+
+def rand(con, title, num, columns, data, number):
+    with con.cursor() as cursor:
+        cursor.execute(
+            f""" INSERT INTO "{title[num - 1]}" ({columns}) SELECT {data} from generate_series(1, {number}) ;"""
+        )
+    print(title[num - 1])
+    print(
+        f""" SQL query: INSERT INTO "{title[num - 1]}" ({columns}) SELECT {data} from generate_series(1, {number});""")
+    print("Inserted randomly")
+
 
 def q_exit():
     print('Continue work with DB? Y/N =>', end=' ')

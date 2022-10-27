@@ -4,7 +4,8 @@ import time
 import random
 
 from controller import conect, close
-from function import table_headlines, show_table, title_table, show_mas, fkey, find_value, last_value_pk, data_type,  select1, select2, select3, q_exit
+from model import table_headlines, show_table, title_table, show_mas, fkey, find_value, last_value_pk, data_type, \
+    select1, select2, select3, insert, delete, update, rand, q_exit
 
 
 def MainMenu():
@@ -95,7 +96,6 @@ def menu_3():
             break
     headers_selected_table = table_headlines(con, title[num - 1])
     values = []
-
     for i in range(len(headers_selected_table)):
         error = 0
         print(headers_selected_table[i] + " = ", end=" ")
@@ -115,19 +115,7 @@ def menu_3():
             return q_exit()
         else:
             values.insert(i, value)
-    columns = ' "' + str(headers_selected_table[0]) + '" '
-    for i in range(1, len(headers_selected_table)):
-        columns = str(columns) + ' , "' + str(headers_selected_table[i]) + '" '
-    data = " '" + str(values[0]) + "' "
-    for i in range(1, len(values)):
-        data = str(data) + " , '" + str(values[i]) + "' "
-    with con.cursor() as cursor:
-        cursor.execute(
-            f"""INSERT INTO "{title[num - 1]}" ({columns} ) VALUES ({data});"""
-        )
-    print(title[num - 1])
-    print(f""" SQL query: INSERT INTO "{title[num - 1]}" ({columns} ) VALUES ({data});""")
-    print("Inserted successfully!!")
+    insert(headers_selected_table, con, title, num, values)
     con.commit()
     close(con)
     return q_exit()
@@ -163,16 +151,10 @@ def menu_4():
     while 1:
         c = input()
         if c == 'Y' or c == 'y':
-            with con.cursor() as cursor:
-                cursor.execute(
-                    f"""DELETE FROM "{title[num - 1]}" WHERE "{headers_selected_table[0]}" = '{num_id}';"""
-                )
-                print(title[num - 1])
-                print(f""" SQL query: DELETE FROM {title[num - 1]} WHERE "{headers_selected_table[0]}" = '{num_id}';""")
-                print(" Deleted successfully!!")
-                con.commit()
-                close(con)
-                return q_exit()
+            delete(con, title, num, headers_selected_table, num_id)
+            con.commit()
+            close(con)
+            return q_exit()
         elif c == 'N' or c == 'n':
             close(con)
             return q_exit()
@@ -231,16 +213,7 @@ def menu_5():
                 flag = 0
         else:
             flag = 0
-    with con.cursor() as cursor:
-        cursor.execute(
-            f""" UPDATE "{title[num - 1]}" SET "{headers_selected_table[num_item]}" = '{value}'
-             WHERE "{headers_selected_table[0]}" = '{num_id}';"""
-        )
-    print(title[num - 1])
-    print(
-        f""" SQL query: UPDATE "{title[num - 1]}" SET "{headers_selected_table[num_item]}" = '{value}' 
-         WHERE "{headers_selected_table[0]}" = '{num_id}';""")
-    print(" Data updated successfully!!")
+    update(con, title, num,  headers_selected_table, num_item, num_id, value)
     con.commit()
     close(con)
     return q_exit()
@@ -273,7 +246,7 @@ def menu_6():
         print()
         print("Enter the name of the shipper =>", end=" ")
         name = input()
-        if "Ukrposhta".find(name) != -1 or "Nova Poshta".find(name) != -1 or  "Meest".find(name) != -1:
+        if "Ukrposhta".find(name) != -1 or "Nova Poshta".find(name) != -1 or "Meest".find(name) != -1:
             select2(name, con)
         else:
             print("Data entry error")
@@ -311,7 +284,7 @@ def menu_7():
     mas_rand = []
     j = 0
     for i in range(0, len(headers_selected_table)):
-        type_ = str(data_type(con, title[num-1], headers_selected_table[i]))
+        type_ = str(data_type(con, title[num - 1], headers_selected_table[i]))
         if type_.find("character varying") != -1:
             mas_rand.insert(j, "chr(trunc(65 + random()*25)::int)")
             j = j + 1
@@ -326,14 +299,7 @@ def menu_7():
     for i in range(1, len(mas_rand)):
         data = str(data) + " , " + str(mas_rand[i])
     number = random.randint(1, 100)
-    with con.cursor() as cursor:
-        cursor.execute(
-            f""" INSERT INTO "{title[num - 1]}" ({columns}) SELECT {data} from generate_series(1, {number}) ;"""
-        )
-    print(title[num - 1])
-    print(f""" SQL query: INSERT INTO "{title[num - 1]}" ({columns}) SELECT {data} from generate_series(1, {number});""")
-    print("Inserted randomly")
+    rand(con, title, num, columns, data, number)
     con.commit()
     close(con)
     return q_exit()
-

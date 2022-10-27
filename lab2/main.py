@@ -1,3 +1,3 @@
-from menu import  MainMenu
+from view import  MainMenu
 
 MainMenu()
